@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Santa's Gift Draw</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,400..900,0..100,0..1;1,9..144,400..900,0..100,0..1&family=Nunito:wght@600;700;800&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="stage">
+    <div id="scene"></div>
+    <canvas id="front"></canvas>
+  </div>
+
+  <div class="hud">
+    <button id="skip" hidden>Skip to the list ▸▸</button>
+    <button id="sound"></button>
+  </div>
+
+  <section class="screen" id="setup">
+    <div class="screen-inner">
+      <div class="eyebrow">Santa's Workshop</div>
+      <h1>Santa's Gift Draw</h1>
+      <p class="lede">
+        Put one household on each line, with commas between brothers and sisters.
+        People on the same line never draw each other. The draws run in order, left to right.
+      </p>
+      <div class="draws" id="draws"></div>
+      <div class="screen-actions">
+        <button class="btn primary" id="start">Start the draw ✦</button>
+        <button class="btn" id="add">Add a draw</button>
+        <span class="spacer"></span>
+        <button class="link" id="last" hidden>See the last matches</button>
+        <button class="link" id="reset">Reset to the family lists</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="screen" id="summary" hidden>
+    <div class="screen-inner">
+      <div class="eyebrow">Santa's Nice List</div>
+      <h1>Every match</h1>
+      <div class="summary-grid" id="summary-grid"></div>
+      <div class="screen-actions">
+        <button class="btn primary" id="print">Print</button>
+        <button class="btn" id="back">Back to the lists</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="draw.js"></script>
+  <script src="lists.js"></script>
+  <script src="sound.js"></script>
+  <script src="scenery.js"></script>
+  <script src="show.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
