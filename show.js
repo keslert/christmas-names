@@ -81,13 +81,16 @@
   }
 
   // Reveal timing: the first gifts take their time, then they come bam-bam-bam,
-  // and the last one, closing the loop, lands a little slower.
+  // and the last one, closing the loop, lands a little slower. A gift never
+  // goes faster than FASTEST_GIFT, so each name can still be read; a big group
+  // runs longer instead (25 kids: about 26s of gifts).
+  const FASTEST_GIFT = 950;
   function stepDurations(n) {
     const weights = Array.from({ length: n }, (_, i) =>
       i === n - 1 && n > 1 ? 1.6 : i === 0 ? 2.2 : i === 1 ? 1.7 : i === 2 ? 1.35 : 1
     );
-    const unit = clamp(22000 / weights.reduce((a, b) => a + b, 0), 520, 1500);
-    return weights.map((w) => clamp(w * unit, 520, 2800));
+    const unit = clamp(22000 / weights.reduce((a, b) => a + b, 0), FASTEST_GIFT, 1500);
+    return weights.map((w) => clamp(w * unit, FASTEST_GIFT, 2800));
   }
 
   // ---------- Building the scene ----------
