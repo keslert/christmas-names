@@ -6,8 +6,8 @@
 // randomized search as a fallback for tightly constrained lists.
 //
 // Input text: one household per line, commas between people in a household.
-//   Savvy, Summer, Sydney, Sheldon
-//   Leticia
+//   Dasher, Dancer, Prancer
+//   Rudolph
 (function (root) {
   "use strict";
 

@@ -1,7 +1,6 @@
 // node draw.test.js — checks the rules every draw must keep.
 const assert = require("node:assert/strict");
 const { parseHouseholds, validate, drawLoop } = require("./draw.js");
-const { DEFAULT_DRAWS } = require("./lists.js");
 
 function seeded(seed) {
   return () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
@@ -19,9 +18,12 @@ function checkDraw(households, pairs) {
   }
 }
 
-for (const draw of DEFAULT_DRAWS) {
-  const households = parseHouseholds(draw.text);
-  assert.deepEqual(validate(households), [], draw.title);
+// Shapes like a real family draw: 25 kids in sibling groups, 10 adults alone.
+const KIDS = "Dasher, Dancer, Prancer, Vixen\nComet, Cupid, Donner, Blitzen\nRudolph, Clarice, Hermey, Yukon, Bumble\nJingle, Jangle, Twinkle\nHolly, Ivy, Noel\nTinsel, Sparkle, Frost\nCocoa\nPeppermint, Gingerbread";
+const ADULTS = "Nick\nMary\nKris\nBelle\nCarol\nGabriel\nJoy\nStar\nAngel\nMerry";
+for (const text of [KIDS, ADULTS]) {
+  const households = parseHouseholds(text);
+  assert.deepEqual(validate(households), [], text);
   for (let seed = 1; seed <= 500; seed++) checkDraw(households, drawLoop(households, seeded(seed)));
 }
 

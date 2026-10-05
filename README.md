@@ -11,4 +11,4 @@ Deploy: every push to `main` on GitHub (keslert/christmas-names) is a production
 - **After each draw:** Next draw, Draw again, or Edit the lists. After the last draw, "See every match" shows every list, ready to print.
 - The latest matches stay in the browser, so a refresh loses nothing ("See the last matches" on the setup screen).
 
-Files: `draw.js` matches names (pure, tested by `node draw.test.js`), `lists.js` holds the family's lists, `show.js` is the animation, `scenery.js` the night scene and particles, `sound.js` synthesized sound, `app.js` the screens.
+Files: `draw.js` matches names (pure, tested by `node draw.test.js`), `show.js` is the animation, `scenery.js` the night scene and particles, `sound.js` synthesized sound, `app.js` the screens.

@@ -3,7 +3,7 @@
 // mid-party loses nothing.
 (function () {
   "use strict";
-  const { Draw, Show, Sound, Scenery, DEFAULT_DRAWS } = window;
+  const { Draw, Show, Sound, Scenery } = window;
   const $ = (id) => document.getElementById(id);
   const scene = $("scene");
 
@@ -15,9 +15,10 @@
     }
   };
   const save = (key, value) => localStorage.setItem(key, JSON.stringify(value));
-  const copyDefaults = () => DEFAULT_DRAWS.map((d) => ({ ...d }));
+  // A fresh page starts with one empty draw; nobody's names ship with the site.
+  const starterDraws = () => [{ title: "Gift Draw", text: "" }];
 
-  let draws = load("draw.lists", null) || copyDefaults();
+  let draws = load("draw.lists", null) || starterDraws();
   let results = load("draw.results", []); // [{ title, pairs }] by draw index
   // What the stage is doing: null, or { index, handle, finished }.
   let current = null;
@@ -30,6 +31,7 @@
   // ---------- Setup ----------
   function describe(text) {
     const households = Draw.parseHouseholds(text);
+    if (!households.length) return { ok: false, empty: true, text: "Type or paste the names to draw." };
     const problems = Draw.validate(households);
     if (problems.length) return { ok: false, text: problems[0] };
     const people = households.flat().length;
@@ -55,11 +57,11 @@
       const [input, textarea, meta] = [card.querySelector("input"), card.querySelector("textarea"), card.querySelector(".card-meta")];
       input.value = draw.title;
       textarea.value = draw.text;
-      textarea.placeholder = "Savvy, Summer, Sydney\nLeticia\nEdward, James";
+      textarea.placeholder = "Dasher, Dancer, Prancer\nVixen\nComet, Cupid\nDonner, Blitzen\nRudolph";
       const refresh = () => {
         const d = describe(textarea.value);
         meta.textContent = d.text;
-        meta.classList.toggle("bad", !d.ok);
+        meta.classList.toggle("bad", !d.ok && !d.empty);
       };
       input.addEventListener("input", () => {
         draw.title = input.value;
@@ -195,8 +197,8 @@
     $("draws").lastElementChild.querySelector("textarea").focus();
   });
   $("reset").addEventListener("click", () => {
-    if (!confirm("Put back the family's lists? Your edits will be replaced.")) return;
-    draws = copyDefaults();
+    if (!confirm("Clear every list and start over?")) return;
+    draws = starterDraws();
     save("draw.lists", draws);
     renderSetup();
   });

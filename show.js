@@ -36,7 +36,7 @@
   ];
 
   const rand = (a, b) => a + Math.random() * (b - a);
-  // "Baby Girl (Tay & Becca)" -> "Baby Girl", for the porthole and the ledger.
+  // "Baby Girl (Ann & Tom)" -> "Baby Girl", for the porthole and the ledger.
   const shortName = (name) => name.replace(/\s*\(.*\)\s*$/, "") || name;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
