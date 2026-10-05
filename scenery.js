@@ -2,6 +2,8 @@
 // The stage is a fixed 1920x1080 box scaled to fit the window, so every
 // position in the show is in stage pixels. The backdrop (sky, hills, far snow)
 // is the same size but scaled to cover the window, so no window shape shows bars.
+// On a phone held upright the show turns a quarter turn clockwise (body.turned),
+// so it fills the screen and reads once the phone is turned sideways.
 (function (root) {
   "use strict";
   const W = 1920;
@@ -13,13 +15,18 @@
   let stage;
   let backdrop;
   let scale = 1;
+  let turned = false;
   const layers = {};
 
   function fitStage() {
-    scale = Math.min(innerWidth / W, innerHeight / H);
-    const cover = Math.max(innerWidth / W, innerHeight / H);
-    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    backdrop.style.transform = `translate(-50%, -50%) scale(${cover})`;
+    turned = document.body.classList.contains("showing") && innerHeight > innerWidth;
+    document.body.classList.toggle("turned", turned);
+    const [w, h] = turned ? [innerHeight, innerWidth] : [innerWidth, innerHeight];
+    scale = Math.min(w / W, h / H);
+    const cover = Math.max(w / W, h / H);
+    const turn = turned ? " rotate(90deg)" : "";
+    stage.style.transform = `translate(-50%, -50%)${turn} scale(${scale})`;
+    backdrop.style.transform = `translate(-50%, -50%)${turn} scale(${cover})`;
     for (const [id, s] of [["stars", cover], ["front", scale]]) {
       const { canvas, g } = layers[id];
       const k = Math.min(2, (devicePixelRatio || 1) * s);
@@ -34,9 +41,16 @@
   function stagePoint(el, ax = 0.5, ay = 0.5) {
     const s = stage.getBoundingClientRect();
     const r = el.getBoundingClientRect();
+    if (!turned) {
+      return {
+        x: (r.left + r.width * ax - s.left) / scale,
+        y: (r.top + r.height * ay - s.top) / scale,
+      };
+    }
+    // Turned clockwise: the stage's x runs down the screen and its y runs right to left.
     return {
-      x: (r.left + r.width * ax - s.left) / scale,
-      y: (r.top + r.height * ay - s.top) / scale,
+      x: (r.top + r.height * ax - s.top) / scale,
+      y: (s.right - (r.right - r.width * ay)) / scale,
     };
   }
 
@@ -253,5 +267,5 @@
     requestAnimationFrame(frame);
   }
 
-  root.Scenery = { init, stagePoint, sparkle, confetti, puff, W, H };
+  root.Scenery = { init, fit: fitStage, stagePoint, sparkle, confetti, puff, W, H };
 })(this);

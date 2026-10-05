@@ -92,6 +92,8 @@
     $("setup").hidden = name !== "setup";
     $("summary").hidden = name !== "summary";
     $("skip").hidden = name !== "show";
+    document.body.classList.toggle("showing", name === "show");
+    Scenery.fit();
   }
 
   function stopShow() {

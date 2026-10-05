@@ -14,6 +14,8 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: #060c20; overflow: hidden; font-family: var(--sans); }
+/* A fixed body clips the 1920px stage, so a phone doesn't widen the page to fit it and zoom out. */
+body { position: fixed; inset: 0; -webkit-text-size-adjust: 100%; }
 button { font: inherit; cursor: pointer; }
 
 /* ---------- Stage: a fixed 1920x1080 canvas scaled to fit the window ---------- */
@@ -403,8 +405,10 @@ button { font: inherit; cursor: pointer; }
 .btn.primary:hover { background: linear-gradient(#ee6168, #b8232f); }
 
 /* ---------- Screens outside the stage: setup, summary, controls ---------- */
-.hud { position: fixed; top: 16px; right: 16px; z-index: 20; display: flex; gap: 8px; }
-.hud button {
+.hud { position: fixed; top: 16px; right: 16px; z-index: 20; display: flex; align-items: center; gap: 8px; }
+/* A turned show turns its controls with it, into the stage's top right corner. */
+body.turned .hud { top: auto; bottom: 12px; right: 12px; transform-origin: 100% 100%; transform: rotate(90deg) translateY(100%); }
+.hud button, .hud .github {
   padding: 8px 16px;
   border: 0;
   border-radius: 999px;
@@ -415,7 +419,8 @@ button { font: inherit; cursor: pointer; }
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
   backdrop-filter: blur(8px);
 }
-.hud button:hover { background: rgba(30, 50, 100, 0.75); }
+.hud button:hover, .hud .github:hover { background: rgba(30, 50, 100, 0.75); }
+.hud .github { display: grid; place-items: center; width: 36px; height: 36px; padding: 0; }
 
 .screen { position: fixed; inset: 0; z-index: 10; overflow: auto; padding: 48px 24px 64px; color: var(--cream); }
 .screen[hidden] { display: none; }
@@ -490,6 +495,25 @@ button { font: inherit; cursor: pointer; }
 .summary-grid li { display: flex; gap: 8px; padding: 6px 0; font: 600 18px var(--sans); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 .summary-grid li .arrow { color: var(--gold); }
 .summary-grid li .rcv { color: #ffb3a8; }
+
+/* ---------- Phones ---------- */
+@media (max-width: 640px), (max-height: 500px) {
+  .hud { top: 10px; right: 10px; gap: 6px; }
+  .hud button { padding: 6px 12px; font-size: 12px; }
+  .hud .github { width: 30px; height: 30px; }
+  .hud .github svg { width: 17px; height: 17px; }
+}
+@media (max-width: 640px) {
+  .screen { padding: 64px 16px 40px; }
+  .screen h1 { font-size: 46px; }
+  .screen .eyebrow { font-size: 12px; }
+  .screen .lede { margin-bottom: 20px; font-size: 16px; }
+  .draws, .summary-grid { grid-template-columns: minmax(0, 1fr); }
+  .card textarea { min-height: 200px; }
+  .screen-actions { gap: 10px; }
+  .screen-actions .btn { flex: 1 1 auto; font-size: 17px; padding: 12px 20px; }
+  .screen-actions .spacer { flex-basis: 100%; height: 0; }
+}
 
 @media print {
   #stage, #backdrop, .hud, .screen-actions, .no-print { display: none !important; }
