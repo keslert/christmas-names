@@ -491,6 +491,7 @@ body.turned .hud { top: auto; bottom: 12px; right: 12px; transform-origin: 100% 
 
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
 .summary-grid .card h2 { margin: 0 0 12px; font: italic 700 32px var(--serif); color: var(--gold); }
+#shared-draws .card h2 { margin: 6px 0 0; font: italic 700 34px var(--serif); color: #fff; overflow-wrap: anywhere; }
 .summary-grid ol { margin: 0; padding: 0; list-style: none; }
 .summary-grid li { display: flex; gap: 8px; padding: 6px 0; font: 600 18px var(--sans); border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
 .summary-grid li .arrow { color: var(--gold); }

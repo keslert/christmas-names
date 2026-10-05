@@ -99,7 +99,42 @@
     return order.map((p, i) => ({ giver: p.name, receiver: order[(i + 1) % order.length].name }));
   }
 
-  const api = { parseHouseholds, formatHouseholds, validate, drawLoop };
+  // A share link carries finished draws in its hash (the part of a URL that
+  // never reaches the server), so whoever opens it replays the same matches.
+  // Each draw is its title, its names in list order, and the loop as indexes
+  // into those names: { v: 1, d: [{ t, n, o }] }, as JSON in base64url.
+  function encodeShare(results) {
+    const d = results.map(({ title, names, pairs }) => {
+      const index = new Map(names.map((name, i) => [name, i]));
+      return { t: title, n: names, o: pairs.map((p) => index.get(p.giver)) };
+    });
+    const bytes = new TextEncoder().encode(JSON.stringify({ v: 1, d }));
+    let binary = "";
+    for (const b of bytes) binary += String.fromCharCode(b);
+    return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+
+  // The draws in a share link, or null if it isn't one this page can play.
+  function decodeShare(code) {
+    try {
+      const binary = atob(String(code).replace(/-/g, "+").replace(/_/g, "/"));
+      const data = JSON.parse(new TextDecoder().decode(Uint8Array.from(binary, (ch) => ch.charCodeAt(0))));
+      if (data.v !== 1 || !Array.isArray(data.d) || !data.d.length) return null;
+      const draws = data.d.map(({ t, n, o }) => {
+        const ok =
+          typeof t === "string" && Array.isArray(n) && n.length >= 2 && n.every((x) => typeof x === "string") &&
+          Array.isArray(o) && o.length === n.length && new Set(o).size === n.length &&
+          o.every((i) => Number.isInteger(i) && i >= 0 && i < n.length);
+        if (!ok) return null;
+        return { title: t, names: n, pairs: o.map((k, i) => ({ giver: n[k], receiver: n[o[(i + 1) % o.length]] })) };
+      });
+      return draws.every(Boolean) ? draws : null;
+    } catch {
+      return null;
+    }
+  }
+
+  const api = { parseHouseholds, formatHouseholds, validate, drawLoop, encodeShare, decodeShare };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.Draw = api;
 })(this);

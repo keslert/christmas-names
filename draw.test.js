@@ -1,6 +1,6 @@
 // node draw.test.js — checks the rules every draw must keep.
 const assert = require("node:assert/strict");
-const { parseHouseholds, validate, drawLoop } = require("./draw.js");
+const { parseHouseholds, validate, drawLoop, encodeShare, decodeShare } = require("./draw.js");
 
 function seeded(seed) {
   return () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
@@ -35,5 +35,19 @@ assert.match(validate(parseHouseholds("A, B, C\nD"))[0], /at most half/);
 assert.match(validate(parseHouseholds("A\na"))[0], /listed twice/);
 assert.match(validate(parseHouseholds("A"))[0], /at least two/);
 assert.equal(parseHouseholds("  A ,B\n\n C ").length, 2);
+
+// A share link replays exactly the draws that made it.
+const shared = [KIDS, ADULTS].map((text, i) => {
+  const households = parseHouseholds(text);
+  return { title: ["Kids", "Grown-ups ✦ Noël"][i], names: households.flat(), pairs: drawLoop(households, seeded(7 + i)) };
+});
+const code = encodeShare(shared);
+assert.match(code, /^[A-Za-z0-9_-]+$/, "safe in a URL hash");
+assert.deepEqual(decodeShare(code), shared);
+assert.equal(decodeShare("not a link"), null);
+assert.equal(decodeShare(""), null);
+const bad = (d) => Buffer.from(JSON.stringify({ v: 1, d })).toString("base64url");
+assert.equal(decodeShare(bad([{ t: "X", n: ["A", "B"], o: [0, 0] }])), null, "a loop must use each name once");
+assert.equal(decodeShare(bad([{ t: "X", n: ["A", "B"], o: [0, 2] }])), null, "indexes stay in the list");
 
 console.log("draw rules hold");
