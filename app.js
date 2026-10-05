@@ -17,6 +17,10 @@
   const save = (key, value) => localStorage.setItem(key, JSON.stringify(value));
   // A fresh page starts with one empty draw; nobody's names ship with the site.
   const starterDraws = () => [{ title: "Gift Draw", text: "" }];
+  // An empty card draws these, its placeholder, so anyone can watch a show
+  // without typing names first.
+  const SAMPLE = "Dasher, Dancer, Prancer\nVixen\nComet, Cupid\nDonner, Blitzen\nRudolph";
+  const namesOf = (draw) => (draw.text.trim() ? draw.text : SAMPLE);
 
   let draws = load("draw.lists", null) || starterDraws();
   let results = load("draw.results", []); // [{ title, pairs }] by draw index
@@ -30,8 +34,9 @@
 
   // ---------- Setup ----------
   function describe(text) {
+    if (!text.trim()) return { ok: true, text: "Empty, so Start draws Santa's reindeer. Type or paste your own names." };
     const households = Draw.parseHouseholds(text);
-    if (!households.length) return { ok: false, empty: true, text: "Type or paste the names to draw." };
+    if (!households.length) return { ok: false, text: "Type or paste the names to draw." };
     const problems = Draw.validate(households);
     if (problems.length) return { ok: false, text: problems[0] };
     const people = households.flat().length;
@@ -57,11 +62,11 @@
       const [input, textarea, meta] = [card.querySelector("input"), card.querySelector("textarea"), card.querySelector(".card-meta")];
       input.value = draw.title;
       textarea.value = draw.text;
-      textarea.placeholder = "Dasher, Dancer, Prancer\nVixen\nComet, Cupid\nDonner, Blitzen\nRudolph";
+      textarea.placeholder = SAMPLE;
       const refresh = () => {
         const d = describe(textarea.value);
         meta.textContent = d.text;
-        meta.classList.toggle("bad", !d.ok && !d.empty);
+        meta.classList.toggle("bad", !d.ok);
       };
       input.addEventListener("input", () => {
         draw.title = input.value;
@@ -105,7 +110,7 @@
   async function startDraw(index) {
     stopShow();
     const draw = draws[index];
-    const households = Draw.parseHouseholds(draw.text);
+    const households = Draw.parseHouseholds(namesOf(draw));
     const pairs = Draw.drawLoop(households);
     results[index] = { title: draw.title, pairs };
     save("draw.results", results);
@@ -178,7 +183,7 @@
 
   // ---------- Wiring ----------
   $("start").addEventListener("click", () => {
-    const bad = draws.findIndex((d) => !describe(d.text).ok);
+    const bad = draws.findIndex((d) => !describe(namesOf(d)).ok);
     if (bad >= 0) {
       const card = $("draws").children[bad];
       card.animate([{ transform: "translateX(-8px)" }, { transform: "translateX(8px)" }, { transform: "none" }], { duration: 300, iterations: 2 });
